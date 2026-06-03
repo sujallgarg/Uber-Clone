@@ -10,3 +10,13 @@
     transform: translateY(0);
   }
 }
+
+.leaflet-container {
+  z-index: 0;
+  font-family: inherit;
+}
+
+.driver-marker {
+  background: transparent;
+  border: none;
+}

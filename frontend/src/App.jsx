@@ -1,5 +1,5 @@
-import React from 'react'
-import { Route, Routes } from 'react-router-dom'
+import React, { useContext } from 'react'
+import { Route, Routes, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
 import UserLogin from './pages/UserLogin'
 import UserSignup from './pages/UserSignup'
@@ -7,6 +7,20 @@ import CaptainLogin from './pages/CaptainLogin'
 import UserLogout from './pages/UserLogout'
 import UserProtectWrapper from './pages/UserProtectWrapper'
 import UserMain from './pages/UserMain'
+import RideSelect from './pages/RideSelect'
+import FindingDriver from './pages/FindingDriver'
+import RideTracking from './pages/RideTracking'
+import RideComplete from './pages/RideComplete'
+import UserWallet from './pages/UserWallet'
+import { RideContext } from './context/RideContext'
+
+const RideGuard = ({ children }) => {
+  const { pickup, destination } = useContext(RideContext)
+  if (!pickup || !destination) {
+    return <Navigate to='/home' replace />
+  }
+  return children
+}
 
 const App = () => {
   return (
@@ -20,6 +34,54 @@ const App = () => {
           element={
             <UserProtectWrapper>
               <UserMain />
+            </UserProtectWrapper>
+          }
+        />
+        <Route
+          path='/ride/select'
+          element={
+            <UserProtectWrapper>
+              <RideGuard>
+                <RideSelect />
+              </RideGuard>
+            </UserProtectWrapper>
+          }
+        />
+        <Route
+          path='/ride/finding'
+          element={
+            <UserProtectWrapper>
+              <RideGuard>
+                <FindingDriver />
+              </RideGuard>
+            </UserProtectWrapper>
+          }
+        />
+        <Route
+          path='/ride/tracking'
+          element={
+            <UserProtectWrapper>
+              <RideGuard>
+                <RideTracking />
+              </RideGuard>
+            </UserProtectWrapper>
+          }
+        />
+        <Route
+          path='/ride/complete'
+          element={
+            <UserProtectWrapper>
+              <RideGuard>
+                <RideComplete />
+              </RideGuard>
+            </UserProtectWrapper>
+          }
+        />
+        <Route
+          path='/user/wallet'
+          element={
+            <UserProtectWrapper>
+              <UserWallet />
             </UserProtectWrapper>
           }
         />

@@ -1,26 +1,27 @@
-import React, { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useMemo, useContext } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { RideContext } from '../context/RideContext'
+import { UBER_LOGO } from '../constants/map'
+import RideMap from '../components/RideMap'
 
 const LOCATION_SUGGESTIONS = [
+  '562/11-A, Kaikondrahalli, Bengaluru, Karnataka',
   'Connaught Place, New Delhi',
   'India Gate, New Delhi',
   'Cyber Hub, Gurugram',
   'Saket Metro Station, New Delhi',
-  'Hauz Khas Village, New Delhi',
   'IGI Airport Terminal 3, New Delhi',
-  'Karol Bagh Market, New Delhi',
-  'Select Citywalk, Saket',
-  'Red Fort, Chandni Chowk',
-  'Nehru Place, New Delhi',
 ]
 
 const UserMain = () => {
+  const navigate = useNavigate()
+  const { setTrip, tripLoading, pickupCoords, destCoords, routePoints } =
+    useContext(RideContext)
   const [pickup, setPickup] = useState('')
   const [destination, setDestination] = useState('')
   const [activeField, setActiveField] = useState(null)
 
   const isExpanded = activeField !== null
-
   const activeValue = activeField === 'pickup' ? pickup : destination
 
   const filteredSuggestions = useMemo(() => {
@@ -31,62 +32,82 @@ const UserMain = () => {
     )
   }, [activeValue])
 
+  const startRide = async () => {
+    if (!pickup.trim() || !destination.trim() || tripLoading) return
+    await setTrip({
+      pickup: pickup.trim(),
+      destination: destination.trim(),
+    })
+    navigate('/ride/select')
+  }
+
   const submitHandler = (e) => {
     e.preventDefault()
-    console.log({ pickup, destination })
+    startRide()
   }
 
   const closePanel = () => setActiveField(null)
 
-  const selectSuggestion = (place) => {
+  const selectSuggestion = async (place) => {
     if (activeField === 'pickup') {
       setPickup(place)
       setActiveField('destination')
     } else if (activeField === 'destination') {
       setDestination(place)
       setActiveField(null)
+      if (pickup.trim()) {
+        await setTrip({ pickup: pickup.trim(), destination: place })
+      }
     }
   }
 
   return (
     <div className='relative h-screen w-full overflow-hidden'>
-      {/* Map background */}
       <div
         className={`absolute inset-0 z-0 transition-opacity duration-500 ${
-          isExpanded ? 'opacity-30' : 'opacity-100'
+          isExpanded ? 'opacity-20' : 'opacity-100'
         }`}
       >
-        <img
-          src='https://camo.githubusercontent.com/25e699a6c9ef0296bae222d6e846697a55d912d9f29c569e297bde23044f6827/68747470733a2f2f322e62702e626c6f6773706f742e636f6d2f2d574f70483738393364526b2f5733527372626f476678492f41414141414141414356552f767a6b39683975526262415777485633366a5455644b4f555552795946322d6167434c63424741732f73313630302f73637265656e73686f74362e706e67'
-          className='h-full w-full object-cover'
-          alt='Map'
-        />
+        {pickupCoords && destCoords ? (
+          <RideMap
+            pickupCoords={pickupCoords}
+            destCoords={destCoords}
+            routePoints={routePoints}
+            interactive={!isExpanded}
+          />
+        ) : (
+          <RideMap interactive={!isExpanded} />
+        )}
       </div>
 
-      {/* Logo — hide when panel expanded */}
       <Link
         to='/'
         className={`absolute top-4 left-4 z-20 transition-opacity duration-300 ${
           isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'
         }`}
       >
-        <img
-          src='https://static.vecteezy.com/system/resources/previews/027/127/501/non_2x/uber-logo-uber-icon-transparent-free-png.png'
-          alt='Uber logo'
-          className='w-12 h-12'
-        />
+        <img src={UBER_LOGO} alt='Uber logo' className='w-12 h-12' />
       </Link>
 
-      {localStorage.getItem('token') && !isExpanded && (
-        <Link
-          to='/user/logout'
-          className='absolute top-4 right-4 z-20 bg-black text-white text-sm font-semibold px-4 py-2 rounded-lg'
-        >
-          Logout
-        </Link>
+      {!isExpanded && (
+        <div className='absolute top-4 right-4 z-20 flex gap-2'>
+          <Link
+            to='/user/wallet'
+            className='bg-white text-black text-sm font-semibold px-4 py-2 rounded-lg shadow'
+          >
+            Wallet
+          </Link>
+          {localStorage.getItem('token') && (
+            <Link
+              to='/user/logout'
+              className='bg-black text-white text-sm font-semibold px-4 py-2 rounded-lg'
+            >
+              Logout
+            </Link>
+          )}
+        </div>
       )}
 
-      {/* Trip panel — animates from bottom to full screen */}
       <div
         className={`absolute left-0 right-0 z-10 transition-all duration-500 ease-in-out ${
           isExpanded ? 'top-0 bottom-0' : 'bottom-0'
@@ -142,24 +163,18 @@ const UserMain = () => {
 
             {isExpanded && activeField === 'pickup' && (
               <ul className='mb-4 max-h-48 overflow-y-auto animate-[fadeIn_0.3s_ease-out]'>
-                {filteredSuggestions.length > 0 ? (
-                  filteredSuggestions.map((place) => (
-                    <li key={place}>
-                      <button
-                        type='button'
-                        onClick={() => selectSuggestion(place)}
-                        className='w-full text-left py-3 px-2 border-b border-gray-100 hover:bg-gray-50 text-base flex items-center gap-3'
-                      >
-                        <span className='text-gray-400'>📍</span>
-                        {place}
-                      </button>
-                    </li>
-                  ))
-                ) : (
-                  <li className='py-3 px-2 text-gray-500 text-sm'>
-                    No locations found
+                {filteredSuggestions.map((place) => (
+                  <li key={place}>
+                    <button
+                      type='button'
+                      onClick={() => selectSuggestion(place)}
+                      className='w-full text-left py-3 px-2 border-b border-gray-100 hover:bg-gray-50 text-base flex items-center gap-3'
+                    >
+                      <span className='text-gray-400'>📍</span>
+                      {place}
+                    </button>
                   </li>
-                )}
+                ))}
               </ul>
             )}
 
@@ -186,33 +201,28 @@ const UserMain = () => {
 
             {isExpanded && activeField === 'destination' && (
               <ul className='mt-2 flex-1 overflow-y-auto animate-[fadeIn_0.3s_ease-out]'>
-                {filteredSuggestions.length > 0 ? (
-                  filteredSuggestions.map((place) => (
-                    <li key={place}>
-                      <button
-                        type='button'
-                        onClick={() => selectSuggestion(place)}
-                        className='w-full text-left py-3 px-2 border-b border-gray-100 hover:bg-gray-50 text-base flex items-center gap-3'
-                      >
-                        <span className='text-gray-400'>📍</span>
-                        {place}
-                      </button>
-                    </li>
-                  ))
-                ) : (
-                  <li className='py-3 px-2 text-gray-500 text-sm'>
-                    No locations found
+                {filteredSuggestions.map((place) => (
+                  <li key={place}>
+                    <button
+                      type='button'
+                      onClick={() => selectSuggestion(place)}
+                      className='w-full text-left py-3 px-2 border-b border-gray-100 hover:bg-gray-50 text-base flex items-center gap-3'
+                    >
+                      <span className='text-gray-400'>📍</span>
+                      {place}
+                    </button>
                   </li>
-                )}
+                ))}
               </ul>
             )}
 
             {!isExpanded && (
               <button
                 type='submit'
-                className='bg-black text-white font-semibold py-3 rounded-lg w-full mt-1'
+                disabled={tripLoading}
+                className='bg-black text-white font-semibold py-3 rounded-lg w-full mt-1 disabled:opacity-60'
               >
-                Find a ride
+                {tripLoading ? 'Loading route…' : 'Find a ride'}
               </button>
             )}
           </form>
@@ -220,10 +230,11 @@ const UserMain = () => {
           {isExpanded && pickup && destination && !activeField && (
             <button
               type='button'
-              onClick={submitHandler}
-              className='bg-black text-white font-semibold py-3 rounded-lg w-full max-w-md mx-auto mt-6'
+              onClick={startRide}
+              disabled={tripLoading}
+              className='bg-black text-white font-semibold py-3 rounded-lg w-full max-w-md mx-auto mt-6 disabled:opacity-60'
             >
-              Find a ride
+              {tripLoading ? 'Loading route…' : 'Find a ride'}
             </button>
           )}
         </div>
