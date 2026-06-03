@@ -9,7 +9,12 @@ const Home = () => {
             <img src="https://static.vecteezy.com/system/resources/previews/027/127/501/non_2x/uber-logo-uber-icon-transparent-free-png.png" alt="" className='h-20 w-20'/>
             <div className='bg-white rounded p-3 m-2'>
                 <h2 className='text-[30px] font-bold p-4'>Get Started with Uber</h2>
-                <Link to='/login ' className='flex text-white bg-black p-[8px] rounded w-[100%] items-center justify-center'>Continue</Link>
+                <Link to='/login' className='flex text-white bg-black p-[8px] rounded w-[100%] items-center justify-center'>Continue</Link>
+                {/* {localStorage.getItem('token') && (
+                  <Link to='/user/logout' className='flex text-white bg-gray-700 p-[8px] rounded w-[100%] items-center justify-center mt-2'>
+                    Logout
+                  </Link>
+                )} */}
             </div>
         </div>
     </div>

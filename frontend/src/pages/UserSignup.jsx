@@ -1,23 +1,113 @@
-import React from 'react'
+import React, { useState, useContext } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { UserDataContext } from '../context/UserContext'
 
 const UserSignup = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [UserData, setUserData] = useState({});
+  const [firstname, setFirstname] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const { setUser } = useContext(UserDataContext)
+  const navigate = useNavigate()
 
-    const submitHandler = (e) =>{
-        e.preventDefault()
-        setUserData({
-            email: email,
-            password: password
-        })
-        console.log(UserData);
-        setEmail('');
-        setPassword('');
+  const submitHandler = async (e) => {
+    e.preventDefault()
+
+    try {
+      const newUser = { firstname, email, password }
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/users/register`,
+        newUser
+      )
+
+      if (response.status === 201) {
+        const { token, user } = response.data
+        setUser(user)
+        localStorage.setItem('token', token)
+        navigate('/home')
+      }
+    } catch (err) {
+    //   console.error(err.response?.data || err.message)
     }
 
+    setFirstname('')
+    setEmail('')
+    setPassword('')
+  }
+
   return (
-    <div>UserSignup</div>
+    <div className='h-screen'>
+      <Link to='/'>
+        <img
+          src='https://static.vecteezy.com/system/resources/previews/027/127/501/non_2x/uber-logo-uber-icon-transparent-free-png.png'
+          alt='Uber logo'
+          className='h-20 w-20'
+        />
+      </Link>
+
+      <div className='p-7 flex justify-center items-center flex-col'>
+        <form className='w-90' name='signup-form' onSubmit={submitHandler}>
+          <h3 className='text-xl mb-2'>Enter Name</h3>
+          <input
+            type='text'
+            id='firstname'
+            name='firstname'
+            autoComplete='given-name'
+            placeholder='John'
+            className='bg-[#eeeeee] mb-7 rounded px-4 py-2 border w-full text-lg placeholder:text-base'
+            value={firstname}
+            onChange={(e) => setFirstname(e.target.value)}
+            required
+          />
+
+          <h3 className='text-xl mb-2'>Enter Email</h3>
+          <input
+            type='email'
+            id='signup-email'
+            name='email'
+            autoComplete='email'
+            placeholder='email@example.com'
+            className='bg-[#eeeeee] mb-7 rounded px-4 py-2 border w-full text-lg placeholder:text-base'
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <h3 className='text-xl mb-2'>Enter Password</h3>
+          <input
+            type='password'
+            id='signup-password'
+            name='password'
+            autoComplete='new-password'
+            placeholder='Enter Your Password'
+            className='bg-[#eeeeee] mb-7 rounded px-4 py-2 border w-full text-lg placeholder:text-base'
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <button
+            type='submit'
+            className='bg-[#111] text-white font-semibold mb-2 rounded px-4 py-2 border w-full text-lg placeholder:text-base'
+          >
+            Signup
+          </button>
+
+          <Link to='/login' className='mb-2 text-blue-600'>
+            Already have an account? Login
+          </Link>
+        </form>
+
+        <div className='flex justify-center items-center'>
+          <button
+            type='button'
+            className='bg-[#111] text-white font-semibold mb-7 w-90 rounded px-4 py-2 border text-lg placeholder:text-base'
+          >
+            Sign up as Captain
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 
