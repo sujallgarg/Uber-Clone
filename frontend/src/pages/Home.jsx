@@ -12,7 +12,7 @@ const Home = () => {
                 <Link to='/login' className='flex text-white bg-black p-[8px] rounded w-[100%] items-center justify-center'>Continue</Link>
                 {/* {localStorage.getItem('token') && (
                   <Link to='/user/logout' className='flex text-white bg-gray-700 p-[8px] rounded w-[100%] items-center justify-center mt-2'>
-                    Logout
+                    Logout  
                   </Link>
                 )} */}
             </div>
