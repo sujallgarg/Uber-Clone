@@ -2,3 +2,4 @@
 node_modulesnode_module/
 .vercel
 .env*
+node_modules
