@@ -33,7 +33,7 @@ const App = () => {
           path='/home'
           element={
             <UserProtectWrapper>
-              <UserMain />
+              <UserMain default/>
             </UserProtectWrapper>
           }
         />
