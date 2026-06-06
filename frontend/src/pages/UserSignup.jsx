@@ -87,11 +87,12 @@ const UserSignup = () => {
             name='firstname'
             autoComplete='given-name'
             placeholder='John'
-            className='bg-[#eeeeee] mb-7 rounded px-4 py-2 border w-full text-lg placeholder:text-base'
+            className='bg-[#eeeeee] mb-1 rounded px-4 py-2 border w-full text-lg placeholder:text-base'
             value={firstname}
             onChange={(e) => setFirstname(e.target.value)}
             required
           />
+          <p className='text-xs text-gray-500 mb-5'>Firstname must be at least 3 characters</p>
 
           <h3 className='text-xl mb-2'>Enter Email</h3>
           <input
@@ -113,11 +114,12 @@ const UserSignup = () => {
             name='password'
             autoComplete='new-password'
             placeholder='Enter Your Password'
-            className='bg-[#eeeeee] mb-7 rounded px-4 py-2 border w-full text-lg placeholder:text-base'
+            className='bg-[#eeeeee] mb-1 rounded px-4 py-2 border w-full text-lg placeholder:text-base'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          <p className='text-xs text-gray-500 mb-6'>Password must be at least 6 characters</p>
 
           <button
             type='submit'
