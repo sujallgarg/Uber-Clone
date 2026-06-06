@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { getApiBaseUrl } from '../utils/api'
 import { UserDataContext } from '../context/UserContext'
 
 const UserLogout = () => {
