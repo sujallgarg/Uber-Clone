@@ -1,7 +1,16 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
 const Home = () => {
+  const navigate = useNavigate()
+  const token = localStorage.getItem('token')
+
+  useEffect(() => {
+    if (token) {
+      navigate('/home')
+    }
+  }, [token, navigate])
+
   return (
     <div>
         <div className='h-screen bg-cover bg-[url(https://tb-static.uber.com/prod/udam-assets/d1588d37-b5d9-454a-8b99-2c3f30e50b52.svg)] bg-center flex justify-between flex-col w-full bg-red-400'>

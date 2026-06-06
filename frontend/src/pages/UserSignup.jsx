@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { UserDataContext } from '../context/UserContext'
@@ -10,6 +10,13 @@ const UserSignup = () => {
   const [error, setError] = useState('')
   const { setUser } = useContext(UserDataContext)
   const navigate = useNavigate()
+  const token = localStorage.getItem('token')
+
+  useEffect(() => {
+    if (token) {
+      navigate('/home')
+    }
+  }, [token, navigate])
 
   const submitHandler = async (e) => {
     e.preventDefault()
