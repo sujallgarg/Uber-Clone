@@ -21,10 +21,17 @@ const RideTracking = () => {
   const [message, setMessage] = useState('')
   const [eta, setEta] = useState(driver.eta)
 
-  useEffect(() => {
-    setRidePhase('arriving')
+  const [prevDriverEta, setPrevDriverEta] = useState(driver.eta)
+  if (driver.eta !== prevDriverEta) {
+    setPrevDriverEta(driver.eta)
     setEta(driver.eta)
-  }, [driver.eta, setRidePhase])
+  }
+
+  useEffect(() => {
+    if (ridePhase !== 'arriving') {
+      setRidePhase('arriving')
+    }
+  }, [ridePhase, setRidePhase])
 
   useEffect(() => {
     if (ridePhase !== 'arriving' || !routePoints.length) return

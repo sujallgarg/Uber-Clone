@@ -7,11 +7,23 @@ const UserSignup = () => {
   const [firstname, setFirstname] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
   const { setUser } = useContext(UserDataContext)
   const navigate = useNavigate()
 
   const submitHandler = async (e) => {
     e.preventDefault()
+    setError('')
+
+    // Client-side validation
+    if (firstname.trim().length < 3) {
+      setError('Firstname must be at least 3 characters long')
+      return
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long')
+      return
+    }
 
     try {
       const newUser = { firstname, email, password }
@@ -24,15 +36,23 @@ const UserSignup = () => {
         const { token, user } = response.data
         setUser(user)
         localStorage.setItem('token', token)
+        setFirstname('')
+        setEmail('')
+        setPassword('')
+        setError('')
         navigate('/home')
       }
     } catch (err) {
-    //   console.error(err.response?.data || err.message)
+      console.error(err.response?.data || err.message)
+      if (err.response?.data?.message) {
+        setError(err.response.data.message)
+      } else if (err.response?.data?.errors) {
+        const errorMsgs = err.response.data.errors.map(e => e.msg).join(', ')
+        setError(errorMsgs || 'Validation failed.')
+      } else {
+        setError(err.response?.data || err.message || 'Registration failed.')
+      }
     }
-
-    setFirstname('')
-    setEmail('')
-    setPassword('')
   }
 
   return (
@@ -47,6 +67,12 @@ const UserSignup = () => {
 
       <div className='p-7 flex justify-center items-center flex-col'>
         <form className='w-90' name='signup-form' onSubmit={submitHandler}>
+          {error && (
+            <div className='bg-red-50 text-red-600 border border-red-200 rounded px-4 py-2.5 mb-5 text-sm font-medium w-full' role='alert'>
+              {error}
+            </div>
+          )}
+
           <h3 className='text-xl mb-2'>Enter Name</h3>
           <input
             type='text'
